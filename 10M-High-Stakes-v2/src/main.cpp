@@ -17,6 +17,7 @@ pros::MotorGroup right_motors({RIGHT_MOTOR_1, RIGHT_MOTOR_2, RIGHT_MOTOR_3});
 // init motors
 pros::Motor intake(INTAKE_PORT, pros::MotorGearset::blue);
 pros::Motor hook(HOOK_PORT, pros::MotorGearset::blue);
+pros::Motor lb(LB_PORT, pros::MotorGearset::red);
 
 // init pneumatics
 pros::adi::DigitalOut clamp(CLAMP_PORT);
@@ -25,7 +26,7 @@ pros::adi::DigitalOut doinker(DOINKER_PORT);
 // init sensors
 pros::Imu imu(IMU_PORT);
 pros::Optical optical(OPTICAL_PORT);
-pros::Rotation lb_rotation(LB_ROTATION_PORT);
+pros::Rotation lb_encoder(LB_ROTATION_PORT);
 pros::Rotation vertical_encoder(VERTICAL_TRACKING_ROTATION_PORT);
 pros::Rotation horizontal_encoder(HORTIZONTAL_TRACKING_ROTATION_PORT);
 
@@ -106,9 +107,88 @@ lemlib::Chassis chassis(drivetrain,
 //init boolean control
 bool clamp_down = false;
 bool doinker_down = false;
+
+//init color sort vars
 int optical_value;
 int color_low_range;
 int color_high_range;
+
+//init lb vars
+const double LB_LOW_POSITION = 0;   
+const double LB_MID_POSITION = 50;   
+const double LB_HIGH_POSITION = 200; 
+
+//ladybrown control
+// Define constants for PID tuning (needs to be tuned)
+const double lb_kP = 1.0; // Proportional constant
+const double lb_kI = 0.0; // Integral constant
+const double lb_kD = 0.0; // Derivative constant
+
+// Define the motor and sensor
+
+// Define the maximum velocity of the motor
+const double lb_max_velocity = 100;  // Maximum motor speed
+class LbArmPID {
+private:
+    double previous_error;
+    double integral;
+    double target_position;
+
+public:
+    // Constructor to init PID vars
+    LbArmPID() {
+        previous_error = 0;
+        integral = 0;
+        target_position = 0;
+    }
+
+    void setTargetPosition(double position) {
+        target_position = position;
+    }
+
+    void pidControl() {
+        double error = target_position - lb_encoder.get_position();  // Calculate the error
+        integral += error; // Integrate the error over time
+        double derivative = error - previous_error; // Calculate the derivative (change in error)
+
+        // PID formula
+        double output = (lb_kP * error) + (lb_kI * integral) + (lb_kD * derivative);
+
+        // Limit the output to the max motor speed
+        if (output > lb_max_velocity) {
+            output = lb_max_velocity;
+        } else if (output < -lb_max_velocity) {
+            output = -lb_max_velocity;
+        }
+
+        // Apply the calculated output to the motor
+        lb.move_velocity(output);
+
+        // Update previous error for the next iteration
+        previous_error = error;
+    }
+
+    void moveArmToTarget() {
+        lb.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+		int iterations = 0;
+		while (iterations < 1000) { // Maximum of 1000 iterations
+			pidControl();
+			if (std::abs(target_position - lb_encoder.get_position()) < 5) {
+				lb.move_velocity(0);
+				break;
+			}
+			pros::delay(20);
+			iterations++;
+		}
+    }
+
+    double getCurrentPosition() {
+        return lb_encoder.get_position();
+    }
+};
+
+
+
 void initialize() {
 	pros::lcd::initialize(); // initialize brain screen
 	chassis.calibrate(); // calibrate sensors
@@ -119,7 +199,7 @@ void initialize() {
         // print measurements from the rotation sensor
         pros::lcd::print(0, "Vertical: %i", vertical_encoder.get_position());
 		pros::lcd::print(1, "Horizontal: %i", horizontal_encoder.get_position());
-		pros::lcd::print(2, "Ladybrown: %i", lb_rotation.get_position());
+		pros::lcd::print(2, "Ladybrown: %i", lb_encoder.get_position());
 
 		// print robot location to the brain screen
 		pros::lcd::print(3, "X: %f", chassis.getPose().x); // x
@@ -179,9 +259,30 @@ void intake_control(void* color) {
 	}
 }
 
+LbArmPID lbArmPID;
+void lb_control() {
+    while (true) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+            lbArmPID.setTargetPosition(LB_HIGH_POSITION);
+            lbArmPID.moveArmToTarget();
+        } 
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+            lbArmPID.setTargetPosition(LB_MID_POSITION);
+            lbArmPID.moveArmToTarget();
+        } 
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            lbArmPID.setTargetPosition(LB_LOW_POSITION);
+            lbArmPID.moveArmToTarget();
+        }
+
+        pros::delay(20);
+    }
+}
+
 void opcontrol() {
 	pros::Task pneumatics(pneumatic_control);
 	pros::Task intake(intake_control, (void*)alliance_color);
+	pros::Task lb(lb_control);
 	while (true) {
         // get left y and right y positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
