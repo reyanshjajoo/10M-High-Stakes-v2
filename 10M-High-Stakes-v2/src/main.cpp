@@ -1,10 +1,14 @@
 #include "main.h"
 #include "lemlib/api.hpp"
 #include "constants.hpp"
+#include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/misc.hpp"
+#include "pros/motors.h"
 #include "pros/rotation.hpp"
 
+// match inits (1 is blue, 2 is red)
+int alliance_color = 1;
 
 // init motorgroups
 pros::MotorGroup left_motors({LEFT_MOTOR_1, LEFT_MOTOR_2, LEFT_MOTOR_3});
@@ -15,7 +19,7 @@ pros::Motor intake(INTAKE_PORT, pros::MotorGearset::blue);
 pros::Motor hook(HOOK_PORT, pros::MotorGearset::blue);
 
 // init pneumatics
-pros::adi::DigitalOut clamp_pneumatic(CLAMP_PORT);
+pros::adi::DigitalOut clamp(CLAMP_PORT);
 pros::adi::DigitalOut doinker(DOINKER_PORT);
 
 // init sensors
@@ -99,10 +103,18 @@ lemlib::Chassis chassis(drivetrain,
                         &steer_curve
 );
 
-
+//init boolean control
+bool clamp_down = false;
+bool doinker_down = false;
+int optical_value;
+int color_low_range;
+int color_high_range;
 void initialize() {
 	pros::lcd::initialize(); // initialize brain screen
 	chassis.calibrate(); // calibrate sensors
+	hook.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	optical.set_led_pwm(100);
+	optical.set_integration_time(20);
 	while (true) {
         // print measurements from the rotation sensor
         pros::lcd::print(0, "Vertical: %i", vertical_encoder.get_position());
@@ -113,6 +125,9 @@ void initialize() {
 		pros::lcd::print(3, "X: %f", chassis.getPose().x); // x
 		pros::lcd::print(4, "Y: %f", chassis.getPose().y); // y
 		pros::lcd::print(5, "Theta: %f", chassis.getPose().theta); // heading
+
+		//sensor values
+		pros::lcd::print(6, "Optical Hue: %f", optical.get_hue());
 		// delay to save resources
 		pros::delay(20);
     }
@@ -124,7 +139,49 @@ void competition_initialize() {}
 
 void autonomous() {}
 
+void pneumatic_control() {
+	while (true) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
+			doinker_down = !doinker_down;
+			doinker.set_value(doinker_down);
+		} else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+			clamp_down = !clamp_down;
+			clamp.set_value(clamp_down);
+		}
+		pros::delay(20);
+	}
+}
+
+void intake_control(void* color) {
+	if (*(int*)color == 1){
+		color_low_range = 0;
+		color_high_range = 20;
+	} else {
+		color_low_range = 200;
+		color_high_range = 240;
+	}
+    while (true) {
+        optical_value = optical.get_hue();
+        if (optical_value >= color_low_range && optical_value <= color_high_range) {
+            // If optical sensor detects a value between 0 and 20, keep motors stopped for 30ms
+            intake.move_velocity(0);
+            hook.brake();
+			pros::delay(30);
+        } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            intake.move_velocity(600);
+            hook.move_velocity(600);
+        } else {
+            intake.move_velocity(0);
+            hook.brake();
+        }
+
+        pros::delay(20);
+	}
+}
+
 void opcontrol() {
+	pros::Task pneumatics(pneumatic_control);
+	pros::Task intake(intake_control, (void*)alliance_color);
 	while (true) {
         // get left y and right y positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
@@ -134,6 +191,6 @@ void opcontrol() {
         chassis.tank(leftY, rightY);
 
         // delay to save resources
-        pros::delay(25);
+        pros::delay(20);
 	};
 }
