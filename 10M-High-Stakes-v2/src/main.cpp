@@ -7,17 +7,18 @@
 #include "pros/motors.h"
 #include "pros/rotation.hpp"
 
-// match inits (1 is blue, 2 is red)
-int alliance_color = 1;
+//color
+enum AllianceColor { BLUE = 1, RED = 2 };
+AllianceColor alliance_color = BLUE;
 
 // init motorgroups
 pros::MotorGroup left_motors({LEFT_MOTOR_1, LEFT_MOTOR_2, LEFT_MOTOR_3});
 pros::MotorGroup right_motors({RIGHT_MOTOR_1, RIGHT_MOTOR_2, RIGHT_MOTOR_3});
 
 // init motors
-pros::Motor intake(INTAKE_PORT, pros::MotorGearset::blue);
+pros::Motor intake(INTAKE_PORT, pros::MotorGearset::green);
 pros::Motor hook(HOOK_PORT, pros::MotorGearset::blue);
-pros::Motor lb(LB_PORT, pros::MotorGearset::red);
+pros::Motor lb(LB_PORT, pros::MotorGearset::green);
 
 // init pneumatics
 pros::adi::DigitalOut clamp(CLAMP_PORT);
@@ -112,10 +113,12 @@ bool doinker_down = false;
 int optical_value;
 int color_low_range;
 int color_high_range;
+int opposing_color_low_range;
+int opposing_color_high_range;
 
 //init lb vars
 const double LB_LOW_POSITION = 0;   
-const double LB_MID_POSITION = 50;   
+const double LB_MID_POSITION = 50;  
 const double LB_HIGH_POSITION = 200; 
 
 //ladybrown control
@@ -124,10 +127,8 @@ const double lb_kP = 1.0; // Proportional constant
 const double lb_kI = 0.0; // Integral constant
 const double lb_kD = 0.0; // Derivative constant
 
-// Define the motor and sensor
 
-// Define the maximum velocity of the motor
-const double lb_max_velocity = 100;  // Maximum motor speed
+const double lb_max_velocity = 400;  // Maximum motor speed
 class LbArmPID {
 private:
     double previous_error;
@@ -145,6 +146,10 @@ public:
     void setTargetPosition(double position) {
         target_position = position;
     }
+
+	double getTargetPosition() {
+		return target_position;
+	}
 
     void pidControl() {
         double error = target_position - lb_encoder.get_position();  // Calculate the error
@@ -221,7 +226,7 @@ void autonomous() {}
 
 void pneumatic_control() {
 	while (true) {
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 			doinker_down = !doinker_down;
 			doinker.set_value(doinker_down);
 		} else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
@@ -229,33 +234,6 @@ void pneumatic_control() {
 			clamp.set_value(clamp_down);
 		}
 		pros::delay(20);
-	}
-}
-
-void intake_control(void* color) {
-	if (*(int*)color == 1){
-		color_low_range = 0;
-		color_high_range = 20;
-	} else {
-		color_low_range = 200;
-		color_high_range = 240;
-	}
-    while (true) {
-        optical_value = optical.get_hue();
-        if (optical_value >= color_low_range && optical_value <= color_high_range) {
-            // If optical sensor detects a value between 0 and 20, keep motors stopped for 30ms
-            intake.move_velocity(0);
-            hook.brake();
-			pros::delay(30);
-        } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            intake.move_velocity(600);
-            hook.move_velocity(600);
-        } else {
-            intake.move_velocity(0);
-            hook.brake();
-        }
-
-        pros::delay(20);
 	}
 }
 
@@ -279,9 +257,47 @@ void lb_control() {
     }
 }
 
+
+void intake_control(void* color) {
+	if (*reinterpret_cast<AllianceColor*>(color) == BLUE){ // blue
+		color_low_range = 200;
+		color_high_range = 240;
+		opposing_color_low_range = 0;
+		opposing_color_high_range = 20;
+	} else { // red
+		color_low_range = 0;
+		color_high_range = 20;
+		opposing_color_low_range = 200;
+		opposing_color_high_range = 240;
+	}
+    while (true) {
+        optical_value = optical.get_hue();
+        if (optical_value >= opposing_color_low_range && optical_value <= opposing_color_high_range) {
+            // If optical sensor detects a value between 0 and 20, keep motors stopped for 30ms
+			pros::delay(30);
+            intake.move_velocity(0);
+            hook.brake();
+			pros::delay(30);
+        } else if (optical_value >= color_low_range && optical_value <= color_high_range && lbArmPID.getTargetPosition() == LB_MID_POSITION) {
+			pros::delay(30);
+			hook.brake();
+			intake.brake();
+			pros::delay(1000);
+		} else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            intake.move_velocity(400);
+            hook.move_velocity(600);
+        } else {
+            intake.move_velocity(0);
+            hook.brake();
+        }
+
+        pros::delay(20);
+	}
+}
+
 void opcontrol() {
 	pros::Task pneumatics(pneumatic_control);
-	pros::Task intake(intake_control, (void*)alliance_color);
+	pros::Task intake(intake_control, &alliance_color);
 	pros::Task lb(lb_control);
 	while (true) {
         // get left y and right y positions
