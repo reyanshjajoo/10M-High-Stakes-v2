@@ -198,6 +198,9 @@ void initialize() {
 	pros::lcd::initialize(); // initialize brain screen
 	chassis.calibrate(); // calibrate sensors
 	hook.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	lb_encoder.reset();
+	horizontal_tracking_wheel.reset();
+	horizontal_tracking_wheel.reset();
 	optical.set_led_pwm(100);
 	optical.set_integration_time(20);
 	while (true) {
