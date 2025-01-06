@@ -2,24 +2,24 @@
 #define CONSTANTS_HPP
 
 // Motor ports
-const int LEFT_MOTOR_1 = 1;
-const int LEFT_MOTOR_2 = 2;
-const int LEFT_MOTOR_3 = 3;
+const int LEFT_MOTOR_FRONT = 11;
+const int LEFT_MOTOR_BACK = 16;
+const int LEFT_MOTOR_TOP = 12;
 
-const int RIGHT_MOTOR_1 = 4;
-const int RIGHT_MOTOR_2 = 5;
-const int RIGHT_MOTOR_3 = 6;
+const int RIGHT_MOTOR_FRONT = 13;
+const int RIGHT_MOTOR_BACK = 20;
+const int RIGHT_MOTOR_TOP = 14;
 
-const int INTAKE_PORT = 7;
-const int HOOK_PORT = 8;
-const int LB_PORT = 9;
+const int INTAKE_PORT = 9;  
+const int HOOK_PORT = 19;
+const int LB_PORT = 7;
 
 // Sensor ports
-const int IMU_PORT = 10;
-const int LB_ROTATION_PORT = 11;
-const int HORTIZONTAL_TRACKING_ROTATION_PORT = 12;
-const int VERTICAL_TRACKING_ROTATION_PORT = 13;
-const int OPTICAL_PORT = 14;
+const int IMU_PORT = 15;
+const int LB_ROTATION_PORT = 8;
+//const int HORTIZONTAL_TRACKING_ROTATION_PORT = 12;
+//const int VERTICAL_TRACKING_ROTATION_PORT = 13;
+const int OPTICAL_PORT = 10;
 
 // Pneumatic ports
 const char CLAMP_PORT = 'A';
