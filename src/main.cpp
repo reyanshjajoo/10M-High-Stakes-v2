@@ -12,13 +12,13 @@ enum AllianceColor { BLUE = 1, RED = 2 };
 AllianceColor alliance_color = BLUE;
 
 // init motorgroups
-pros::MotorGroup left_motors({LEFT_MOTOR_1, LEFT_MOTOR_2, LEFT_MOTOR_3});
-pros::MotorGroup right_motors({RIGHT_MOTOR_1, RIGHT_MOTOR_2, RIGHT_MOTOR_3});
+pros::MotorGroup left_motors({LEFT_MOTOR_FRONT, LEFT_MOTOR_TOP, LEFT_MOTOR_BACK});
+pros::MotorGroup right_motors({RIGHT_MOTOR_FRONT, RIGHT_MOTOR_TOP, RIGHT_MOTOR_BACK});
 
 // init motors
-pros::Motor intake(INTAKE_PORT, pros::MotorGearset::green);
+pros::Motor intake(INTAKE_PORT);
 pros::Motor hook(HOOK_PORT, pros::MotorGearset::blue);
-pros::Motor lb(LB_PORT, pros::MotorGearset::green);
+pros::Motor lb(LB_PORT);
 
 // init pneumatics
 pros::adi::DigitalOut clamp(CLAMP_PORT);
@@ -28,8 +28,8 @@ pros::adi::DigitalOut doinker(DOINKER_PORT);
 pros::Imu imu(IMU_PORT);
 pros::Optical optical(OPTICAL_PORT);
 pros::Rotation lb_encoder(LB_ROTATION_PORT);
-pros::Rotation vertical_encoder(VERTICAL_TRACKING_ROTATION_PORT);
-pros::Rotation horizontal_encoder(HORTIZONTAL_TRACKING_ROTATION_PORT);
+// pros::Rotation vertical_encoder(VERTICAL_TRACKING_ROTATION_PORT);
+// pros::Rotation horizontal_encoder(HORTIZONTAL_TRACKING_ROTATION_PORT);
 
 //init controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -45,14 +45,14 @@ lemlib::Drivetrain drivetrain(&left_motors, // left motor group
 
 // init tracking wheels
 // horizontal tracking wheel
-lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_275, -5.75);
+// lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_275, -5.75);
 // vertical tracking wheel
-lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_275, -2.5);
+// lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_275, -2.5);
 
 //init odom
-lemlib::OdomSensors sensors(&vertical_tracking_wheel, // vertical tracking wheel 1, set to null
+lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel 1, set to null
                             nullptr, // vertical tracking wheel 2, set to nullptr as we are using IMEs
-                            &horizontal_tracking_wheel, // horizontal tracking wheel 1
+                            nullptr, // horizontal tracking wheel 1
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
                             &imu // inertial sensor
 );
@@ -199,14 +199,14 @@ void initialize() {
 	chassis.calibrate(); // calibrate sensors
 	hook.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	lb_encoder.reset();
-	horizontal_tracking_wheel.reset();
-	horizontal_tracking_wheel.reset();
+	// horizontal_tracking_wheel.reset();
+	// horizontal_tracking_wheel.reset();
 	optical.set_led_pwm(100);
 	optical.set_integration_time(20);
 	while (true) {
         // print measurements from the rotation sensor
-        pros::lcd::print(0, "Vertical: %i", vertical_encoder.get_position());
-		pros::lcd::print(1, "Horizontal: %i", horizontal_encoder.get_position());
+        // pros::lcd::print(0, "Vertical: %i", vertical_encoder.get_position());
+		// pros::lcd::print(1, "Horizontal: %i", horizontal_encoder.get_position());
 		pros::lcd::print(2, "Ladybrown: %i", lb_encoder.get_position());
 
 		// print robot location to the brain screen
