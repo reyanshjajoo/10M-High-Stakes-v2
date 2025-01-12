@@ -299,7 +299,8 @@
     },
     "upload_options": {
       "description": "10M's High Stakes code for their second bot.",
-      "icon": "pros"
+      "icon": "pros",
+      "slot": 5
     },
     "use_early_access": false
   }
