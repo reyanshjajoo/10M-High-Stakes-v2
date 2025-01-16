@@ -420,11 +420,11 @@ bool doinker_down = false;
 
 float target_position = 0;
 
-// Initialize intake control without color sorting
+// Initialize intake control with color sorting
 void intake_control() {
     while (true) {
         // If the R1 button is pressed, start the intake (200-240 Blue, 5-45 Red)
-        if (optical.get_hue() < 45 & optical.get_hue() > 5){
+        if (optical.get_hue() > 5 & optical.get_hue() < 45){
             intake.move_velocity(0);
             hook.move_velocity(0);
             pros::delay(51);
