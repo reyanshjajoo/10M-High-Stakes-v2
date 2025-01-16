@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "10M-High-Stakes-v2",
+    "project_name": "BLUE RIGHT",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -300,7 +300,7 @@
     "upload_options": {
       "description": "10M's High Stakes code for their second bot.",
       "icon": "pros",
-      "slot": 5
+      "slot": 2
     },
     "use_early_access": false
   }

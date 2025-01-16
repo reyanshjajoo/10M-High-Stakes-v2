@@ -556,15 +556,53 @@ void autonomous() {
     // chassis.moveToPoint(0, -35, 1800, {}, false);
 
     //RED RIGHT
-    chassis.moveToPoint(0, -10, 700, {.forwards = false, .earlyExitRange=2}, false);
-    chassis.moveToPoint(-12, -35, 1500, {.forwards=false, .maxSpeed=120}, false);
-    pros::delay(100);
+    // chassis.moveToPoint(0, -10, 700, {.forwards = false, .earlyExitRange=2}, false);
+    // chassis.moveToPoint(-12, -35, 1500, {.forwards=false, .maxSpeed=120}, false);
+    // pros::delay(100);
+    // intake.move_velocity(600);
+    // hook.move_velocity(600);
+    // clamp.set_value(true);
+    // pros::delay(600);
+    // chassis.moveToPoint(34, -34, 1000, {}, false);
+    // chassis.moveToPoint(55, 5, 1000);
+
+
+    //NEWWW RED LEFT
+    // chassis.moveToPoint(-1, -16, 3000, {.forwards=false}, false);
+    // chassis.turnToHeading(90, 700);
+    // chassis.moveToPose(-5.5, -16, 90,1000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // intake.move_velocity(600);
+    // hook.move_velocity(600);
+    // pros::delay(500);
+    // chassis.moveToPose(0, 0, -25, 1000, {.horizontalDrift = 8, .lead = 0.4, .earlyExitRange=2}, false);
+    // chassis.moveToPoint(39, 12, 2500, {.forwards=false, .maxSpeed = 75}, false);
+    // clamp.set_value(true);
+    // pros::delay(250);
+    // chassis.moveToPoint(33,34,3000);
+    // chassis.moveToPoint(43,41,3000);
+    // chassis.moveToPoint(30,40,3000,{.forwards = false});
+    // chassis.moveToPoint(43,32,3000);
+    // chassis.moveToPoint(17,9,3000,{.forwards = false});
+    // chassis.moveToPoint(29,-15,3000,{.maxSpeed = 75});
+
+
+    //NEWWW BLUE RIGHT
+    chassis.moveToPoint(-1, 16, 3000, {.forwards=false}, false);
+    chassis.turnToHeading(-90, 700);
+    chassis.moveToPose(-5.5, 16, -90,1000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
     intake.move_velocity(600);
     hook.move_velocity(600);
+    pros::delay(500);
+    chassis.moveToPose(0, 0, 25, 1000, {.horizontalDrift = 8, .lead = 0.4, .earlyExitRange=2}, false);
+    chassis.moveToPoint(39, -12, 2500, {.forwards=false, .maxSpeed = 75}, false);
     clamp.set_value(true);
-    pros::delay(600);
-    chassis.moveToPoint(34, -34, 1000, {}, false);
-    chassis.moveToPoint(55, 5, 1000);
+    pros::delay(250);
+    chassis.moveToPoint(33,-34,3000);
+    chassis.moveToPoint(43,-41,3000);
+    chassis.moveToPoint(30,-40,3000,{.forwards = false});
+    chassis.moveToPoint(43,-32,3000);
+    chassis.moveToPoint(17,-9,3000,{.forwards = false});
+    chassis.moveToPoint(29,15,3000,{.maxSpeed = 75});
 }   
 
 void opcontrol() {
