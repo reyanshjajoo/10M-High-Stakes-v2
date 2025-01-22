@@ -183,6 +183,7 @@ void initialize() {
             pros::lcd::print(4, "Hook Draw: %f", hook.get_current_draw()); // draw
             pros::lcd::print(5, "Color Hue: %f", optical.get_hue()); // hue
             pros::lcd::print(6, "LB Position %f", lb_encoder.get_position() * 0.01);
+            pros::lcd::print(6, "Hook Velocity %f", hook.get_actual_velocity());
 
             std::cout << "Position: " << lb_encoder.get_position() << std::endl;
             // delay to save resources
@@ -190,52 +191,27 @@ void initialize() {
         }
     });
 }
+void anti_jam() {
+    while (true){
+        if (hook.get_actual_velocity() == 0){
+            hook.move_velocity(-100);
+            pros::delay(50);
+            hook.move_velocity(400);
+        }
+        if (optical.get_hue() > 5 & optical.get_hue() < 45){
+            intake.move_velocity(0);
+            hook.move_velocity(0);
+            pros::delay(51);
+        }
+        pros::delay(20);
+    }
+}
 
 void autonomous() {
     chassis.setPose(0, 0, 0);
     clamp.set_value(false);
 
-    //RED LEFT NEG
-    // chassis.swingToHeading(-40, DriveSide::LEFT, 700, {}, false);
-    // lb.move_relative(-1400, 600);
-    // pros::delay(1000);
-    // chassis.moveToPoint(0, -10, 700, {.forwards = false, .earlyExitRange=2}, false);
-    // chassis.moveToPoint(12, -35, 1500, {.forwards=false, .maxSpeed=120}, false);
-    // pros::delay(100);
-    // intake.move_velocity(600);
-    // hook.move_velocity(600);
-    // clamp.set_value(true);
-    // pros::delay(600);
-    // chassis.moveToPoint(30, -48.5, 1000, {.maxSpeed=100}, false);
-    // pros::delay(1000);
-    // chassis.moveToPoint(41, -48.5, 1000, {.maxSpeed=60}, false);
-    // pros::delay(1000);
-    // chassis.moveToPoint(10, -38, 1000, {.forwards=false}, false);
-    // chassis.moveToPoint(34, -30, 1000, {}, false);
-    // pros::delay(1300);
-    // chassis.moveToPoint(0, -39, 1800, {}, false);
-
-    //RIGHT BLUE NEG
-    // chassis.swingToHeading(40, DriveSide::RIGHT, 700, {}, false);
-    // lb.move_relative(-1400, 600);
-    // pros::delay(1000);
-    // chassis.moveToPoint(0, -10, 700, {.forwards = false, .earlyExitRange=2}, false);
-    // chassis.moveToPoint(-12, -35, 1500, {.forwards=false, .maxSpeed=120}, false);
-    // pros::delay(100);
-    // intake.move_velocity(600);
-    // hook.move_velocity(600);
-    // clamp.set_value(true);
-    // pros::delay(600);
-    // chassis.moveToPoint(-30, -48.5, 1000, {.maxSpeed=100}, false);
-    // pros::delay(1000);
-    // chassis.moveToPoint(-41, -48.5, 1000, {.maxSpeed=60}, false);
-    // pros::delay(1000);
-    // chassis.moveToPoint(-10, -38, 1000, {.forwards=false}, false);
-    // chassis.moveToPoint(-34, -30, 1000, {}, false);
-    // pros::delay(1300);
-    // chassis.moveToPoint(0, -35, 1800, {}, false);
-
-    //RED RIGHT
+    //RED RIGHT / BLUE LEFT
     // chassis.moveToPoint(0, -10, 700, {.forwards = false, .earlyExitRange=2}, false);
     // chassis.moveToPoint(-12, -35, 1500, {.forwards=false, .maxSpeed=120}, false);
     // pros::delay(100);
@@ -247,42 +223,69 @@ void autonomous() {
     // chassis.moveToPoint(55, 5, 1000);
 
 
-    //NEWWW RED LEFT
-    // chassis.moveToPoint(-1, -16, 3000, {.forwards=false}, false);
+    // NEWWW RED LEFT
+    // chassis.moveToPoint(-1, -15, 3000, {.forwards=false}, false);
     // chassis.turnToHeading(90, 700);
-    // chassis.moveToPose(-5.5, -16, 90,1000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(-9.5, -15, 90,1000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
     // intake.move_velocity(600);
     // hook.move_velocity(600);
     // pros::delay(500);
-    // chassis.moveToPose(0, 0, -25, 1000, {.horizontalDrift = 8, .lead = 0.4, .earlyExitRange=2}, false);
-    // chassis.moveToPoint(39, 12, 2500, {.forwards=false, .maxSpeed = 75}, false);
+    // pros::Task anti_jam_task(anti_jam);
+    // chassis.moveToPose(0, 0, -30, 1000, {.horizontalDrift = 8, .lead = 0.4, .earlyExitRange=2}, false);
+    // chassis.moveToPoint(30, 10, 2500, {.forwards=false, .maxSpeed = 90}, false);
     // clamp.set_value(true);
     // pros::delay(250);
-    // chassis.moveToPoint(33,34,3000);
-    // chassis.moveToPoint(43,41,3000);
-    // chassis.moveToPoint(30,40,3000,{.forwards = false});
-    // chassis.moveToPoint(43,32,3000);
-    // chassis.moveToPoint(17,9,3000,{.forwards = false});
-    // chassis.moveToPoint(29,-15,3000,{.maxSpeed = 75});
+    // chassis.moveToPoint(25,35,3000);
+    // chassis.moveToPoint(39,43,3000);
+    // pros::delay(750);
+    // chassis.moveToPoint(22,40,3000,{.forwards = false});
+    // chassis.moveToPoint(22,32,3000);
+    // chassis.moveToPoint(40,32,3000);
+    // pros::delay(750);
+    // chassis.moveToPoint(9,9,3000,{.forwards = false});
+    // chassis.moveToPoint(26,-15,3000,{.maxSpeed = 75});
 
 
     //NEWWW BLUE RIGHT
-    chassis.moveToPoint(-1, 16, 3000, {.forwards=false}, false);
-    chassis.turnToHeading(-90, 700);
-    chassis.moveToPose(-5.5, 16, -90,1000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.setPose(0, 0, 180);
+    // chassis.moveToPoint(-1, 16, 3000, {.forwards=false}, false);
+    // chassis.turnToHeading(90, 700);
+    // chassis.moveToPose(-5.5, 16, 90,1000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // intake.move_velocity(600);
+    // hook.move_velocity(600);
+    // pros::delay(500);
+    // chassis.moveToPose(5, 6, 25, 1000, {.horizontalDrift = 8, .lead = 0.4, .earlyExitRange=2}, false);
+    // chassis.moveToPoint(39, -3, 2500, {.forwards=false, .maxSpeed = 75}, false);
+    // clamp.set_value(true);
+    // pros::delay(250);
+    // chassis.moveToPoint(36,-26,3000);
+    // chassis.moveToPoint(54,-33,3000);
+    // chassis.moveToPoint(33,-32,3000,{.forwards = false});
+    // chassis.moveToPoint(54,-24,3000);
+    // chassis.moveToPoint(20,-1,3000,{.forwards = false});
+    // chassis.moveToPoint(39,23,3000,{.maxSpeed = 75});
+
+    //newER blue right
+    chassis.moveToPoint(1, -15, 3000, {.forwards=false}, false);
+    chassis.turnToHeading(90, 700);
+    chassis.moveToPose(9.5, -15, -90,1000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
     intake.move_velocity(600);
     hook.move_velocity(600);
     pros::delay(500);
-    chassis.moveToPose(0, 0, 25, 1000, {.horizontalDrift = 8, .lead = 0.4, .earlyExitRange=2}, false);
-    chassis.moveToPoint(39, -12, 2500, {.forwards=false, .maxSpeed = 75}, false);
+    pros::Task anti_jam_task(anti_jam);
+    chassis.moveToPose(0, 0, 30, 1000, {.horizontalDrift = 8, .lead = 0.4, .earlyExitRange=2}, false);
+    chassis.moveToPoint(-30, 10, 2500, {.forwards=false, .maxSpeed = 90}, false);
     clamp.set_value(true);
     pros::delay(250);
-    chassis.moveToPoint(33,-34,3000);
-    chassis.moveToPoint(43,-41,3000);
-    chassis.moveToPoint(30,-40,3000,{.forwards = false});
-    chassis.moveToPoint(43,-32,3000);
-    chassis.moveToPoint(17,-9,3000,{.forwards = false});
-    chassis.moveToPoint(29,15,3000,{.maxSpeed = 75});
+    chassis.moveToPoint(-25,35,3000);
+    chassis.moveToPoint(-39,43,3000);
+    pros::delay(750);
+    chassis.moveToPoint(-22,40,3000,{.forwards = false});
+    chassis.moveToPoint(-22,32,3000);
+    chassis.moveToPoint(-40,32,3000);
+    pros::delay(750);
+    chassis.moveToPoint(-9,9,3000,{.forwards = false});
+    chassis.moveToPoint(-26,-15,3000,{.maxSpeed = 75});
 }   
 
 void opcontrol() {
