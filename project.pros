@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "SKILLS",
+    "project_name": "goalrushtest",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -300,7 +300,7 @@
     "upload_options": {
       "description": "10M's High Stakes code for their second bot.",
       "icon": "pros",
-      "slot": 8
+      "slot": 7
     },
     "use_early_access": false
   }
