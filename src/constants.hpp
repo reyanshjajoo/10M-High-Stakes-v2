@@ -15,11 +15,13 @@ const int HOOK_PORT = -19;
 const int LB_PORT = 7;
 
 // Sensor ports
-const int IMU_PORT = 15;
-const int IMU2_PORT = 1;
-const int LB_ROTATION_PORT = 8;
-//const int HORTIZONTAL_TRACKING_ROTATION_PORT = 12;
-//const int VERTICAL_TRACKING_ROTATION_PORT = 13;
+
+const int IMU_PORT = 1;
+
+//TODO: Update ports
+const int HORTIZONTAL_TRACKING_ROTATION_PORT = 12;
+const int VERTICAL_TRACKING_ROTATION_PORT = 13;
+
 const int OPTICAL_PORT = 10;
 
 // Pneumatic ports
