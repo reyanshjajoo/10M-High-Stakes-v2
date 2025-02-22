@@ -12,8 +12,14 @@
 #include "pros/rtos.hpp"
 
 // COLOR SORT VALUES (200-240 Blue, 5-45 Red)
-int LOWER_COLOR_RANGE = 5;
-int UPPER_COLOR_RANGE = 45;
+
+int RED_RING_COLOR = 25;
+int BLUE_RING_COLOR = 220;
+
+int curr_color = RED_RING_COLOR;
+
+int LOWER_COLOR_RANGE = curr_color-20;
+int UPPER_COLOR_RANGE = curr_color+20;
 
 // init motorgroups
 pros::MotorGroup left_motors({LEFT_MOTOR_FRONT, LEFT_MOTOR_TOP, LEFT_MOTOR_BACK});
