@@ -16,10 +16,10 @@
 int RED_RING_COLOR = 25;
 int BLUE_RING_COLOR = 220;
 
-int curr_color = RED_RING_COLOR;
+int color_to_sort = BLUE_RING_COLOR;
 
-int LOWER_COLOR_RANGE = curr_color-20;
-int UPPER_COLOR_RANGE = curr_color+20;
+int LOWER_COLOR_RANGE = color_to_sort-20;
+int UPPER_COLOR_RANGE = color_to_sort+20;
 
 // init motorgroups
 pros::MotorGroup left_motors({LEFT_MOTOR_FRONT, LEFT_MOTOR_TOP, LEFT_MOTOR_BACK});
