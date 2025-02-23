@@ -177,12 +177,12 @@ void lb_control(){
         // if left or right pressed move LB to loading, if down pressed move it down, or if up pressed move it up
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT) || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
             target_position = -83.5;
-            lb.move_absolute(-410, 400);
+            lb.move_absolute(LB_MID, 400);
         } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
             target_position = 0;
-            lb.move_absolute(0, 400);
+            lb.move_absolute(LB_DOWN, 400);
         } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-            lb.move_absolute(-2000, 400);
+            lb.move_absolute(LB_UP, 400);
         }
         // delay to save resources
         pros::delay(20);
@@ -246,15 +246,15 @@ void autonomous() {
     intake.move_velocity(600);
     chassis.moveToPose(-23.5, -23.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 1
     chassis.moveToPose(0, -59, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 2
-    lb.move_absolute(-410, 400);
+    lb.move_absolute(LB_MID, 400);
     pros::delay(1000);
     // score on wall stake
     chassis.moveToPose(0, -64, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     hook.brake();
     intake.brake();
-    lb.move_absolute(-2000, 400);
+    lb.move_absolute(LB_UP, 400);
     chassis.moveToPose(0, -48, 180, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
-    lb.move_absolute(0, 400);
+    lb.move_absolute(LB_DOWN, 400);
     //grab rest of rings + corner
     hook.move_velocity(600);
     intake.move_velocity(600);
@@ -276,15 +276,15 @@ void autonomous() {
     intake.move_velocity(600);
     chassis.moveToPose(-23.5, 23.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 1
     chassis.moveToPose(0, 59, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 2
-    lb.move_absolute(-410, 400);
+    lb.move_absolute(LB_MID, 400);
     pros::delay(1000);
     // score on wall stake
     chassis.moveToPose(0, 64, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     hook.brake();
     intake.brake();
-    lb.move_absolute(-2000, 400);
+    lb.move_absolute(LB_UP, 400);
     chassis.moveToPose(0, 48, 0, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3,}, false);
-    lb.move_absolute(0, 400);
+    lb.move_absolute(LB_DOWN, 400);
     //grab rest of rings + corner
     hook.move_velocity(600);
     intake.move_velocity(600);
@@ -296,7 +296,7 @@ void autonomous() {
     clamp.set_value(false);
 
     //go to far goal with ring in LB
-    lb.move_absolute(-410, 400);
+    lb.move_absolute(LB_MID, 400);
     chassis.moveToPose(23.5, 47.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     chassis.moveToPose(47, 4.5, 0, 3000, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
     pros::delay(250);
@@ -307,9 +307,9 @@ void autonomous() {
     chassis.moveToPose(55.5, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     hook.brake();
     intake.brake();
-    lb.move_absolute(-2700, 400);
+    lb.move_absolute(LB_ALLIANCE_STAKE, 400);
     chassis.moveToPose(47, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    lb.move_absolute(0, 400);
+    lb.move_absolute(LB_DOWN, 400);
     hook.move_velocity(600);
     intake.move_velocity(600);
     //grab rings
@@ -332,7 +332,7 @@ void autonomous() {
     chassis.moveToPose(56.5, -14.5, 170, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
     chassis.moveToPose(63.5, -59, 170, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
     //hang
-    lb.move_absolute(-2000, 400);
+    lb.move_absolute(LB_UP, 400);
     chassis.moveToPose(15, -15, 315, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
 }
 
