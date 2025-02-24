@@ -30,7 +30,7 @@ const char DOINKER_PORT = 'B';
 
 //ladybrown values
 const int LB_DOWN = 0;
-const int LB_MID = -415;
+const int LB_MID = -410;
 const int LB_UP = -2000;
 const int LB_ALLIANCE_STAKE = -3000;
 const int LB_TIP = -3700;
