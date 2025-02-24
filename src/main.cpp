@@ -113,7 +113,6 @@ lemlib::Chassis chassis(drivetrain,
 bool clamp_down = false;
 bool doinker_down = false;
 bool color_sort = true;
-float target_position = 0;
 
 // init intake control with color sorting
 void intake_control() {
@@ -175,14 +174,14 @@ void pneumatic_control() {
 void lb_control(){
     while (true) {
         // if left or right pressed move LB to loading, if down pressed move it down, or if up pressed move it up
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT) || controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-            target_position = -83.5;
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
             lb.move_absolute(LB_MID, 400);
         } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            target_position = 0;
             lb.move_absolute(LB_DOWN, 400);
         } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
             lb.move_absolute(LB_UP, 400);
+        } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+            lb.move_absolute(LB_TIP, 400);
         }
         // delay to save resources
         pros::delay(20);
