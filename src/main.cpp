@@ -46,23 +46,23 @@ pros::Rotation horizontal_encoder(HORTIZONTAL_TRACKING_ROTATION_PORT);
 pros::Rotation vertical_encoder(VERTICAL_TRACKING_ROTATION_PORT);
 
 //TODO: update offset
-lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_2, -5.75);
-lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_2, -2.5);
+lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_2, 0.425);
+lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_2, -0.0866);
 
 
 // init drivetrain
 lemlib::Drivetrain drivetrain(&left_motors, // left motor group
                               &right_motors, // right motor group
-                              12.24, // track width
+                              12.23696614, // track width
                               lemlib::Omniwheel::NEW_325, // wheel diameter
                               450, // drivetrain rpm
-                              4 // horizontal drift is 2 (for now)
+                              2 // horizontal drift is 2 (for now)
 );
 
 // init PID controllers
-lemlib::ControllerSettings lateral_controller(7, // proportional gain (kP)
+lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              4, // derivative gain (kD)
+                                              3, // derivative gain (kD)
                                               3, // anti windup
                                               1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
@@ -71,13 +71,13 @@ lemlib::ControllerSettings lateral_controller(7, // proportional gain (kP)
                                               20 // maximum acceleration (slew)
 );
 
-lemlib::ControllerSettings angular_controller(3, // proportional gain (kP)
+lemlib::ControllerSettings angular_controller(2, // proportional gain (kP)
                                               0, // integral gain (kI)
                                               10, // derivative gain (kD)
                                               3, // anti windup
-                                              1, // small error range, in degrees
+                                              1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
-                                              3, // large error range, in degrees
+                                              3, // large error range, in inches
                                               500, // large error range timeout, in milliseconds
                                               0 // maximum acceleration (slew)
 );
@@ -88,9 +88,9 @@ lemlib::ExpoDriveCurve throttle_curve(3, // joystick deadband out of 127
                                       1.019 // expo curve gain
 );
 
-lemlib::ExpoDriveCurve steer_curve(6, // joystick deadband out of 127
-                                   15, // minimum output where drivetrain will move out of 127
-                                   1.01 // expo curve gain
+lemlib::ExpoDriveCurve steer_curve(3, // joystick deadband out of 127
+    10, // minimum output where drivetrain will move out of 127
+    1.019 // expo curve gain
 );
 
 //init odom
