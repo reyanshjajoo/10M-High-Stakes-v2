@@ -62,7 +62,7 @@ lemlib::Drivetrain drivetrain(&left_motors, // left motor group
 // init PID controllers
 lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              3, // derivative gain (kD)
+                                              5, // derivative gain (kD)
                                               3, // anti windup
                                               1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
@@ -71,10 +71,10 @@ lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
                                               20 // maximum acceleration (slew)
 );
 
-lemlib::ControllerSettings angular_controller(2, // proportional gain (kP)
+lemlib::ControllerSettings angular_controller(2.76, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              10, // derivative gain (kD)
-                                              3, // anti windup
+                                              13.7, // derivative gain (kD)
+                                              0, // anti windup
                                               1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
                                               3, // large error range, in inches
@@ -201,8 +201,11 @@ void initialize() {
             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
             pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
             pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            pros::lcd::print(5, "Color Hue: %f", optical.get_hue()); // hue
-            pros::lcd::print(6, "LB Position %f", lb.get_position()); // lb position
+            pros::lcd::print(3, "Color Hue: %f", optical.get_hue()); // hue
+            pros::lcd::print(4, "LB Position %f", lb.get_position()); // lb position
+
+            pros::lcd::print(5, "Vertical Sensor: %i", vertical_encoder.get_position());
+            pros::lcd::print(6, "Horizontal Sensor: %i", horizontal_encoder.get_position());
 
             // delay to save resources
             pros::delay(20);
@@ -229,112 +232,131 @@ void autonomous() {
     clamp.set_value(false);
     
     //SKILLS CODE
-    chassis.setPose(-63.5, 0, 90);
-    //score on alliance stake
-    hook.move_velocity(600);
-    pros::delay(250);
-    hook.brake();
-    // clamp goal
-    chassis.moveToPose(-47.5, 9, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(-47.5, -19, 0, 3000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
-    pros::delay(250);
-    clamp.set_value(true);
-    pros::delay(250);
-    // get rings and go to wall stake
-    hook.move_velocity(600);
-    intake.move_velocity(600);
-    chassis.moveToPose(-23.5, -23.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 1
-    chassis.moveToPose(0, -59, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 2
-    lb.move_absolute(LB_MID, 400);
-    pros::delay(1000);
-    // score on wall stake
-    chassis.moveToPose(0, -64, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    hook.brake();
-    intake.brake();
-    lb.move_absolute(LB_UP, 400);
-    chassis.moveToPose(0, -48, 180, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
-    lb.move_absolute(LB_DOWN, 400);
-    //grab rest of rings + corner
-    hook.move_velocity(600);
-    intake.move_velocity(600);
-    chassis.turnToHeading(270, 3000, {}, false);
-    chassis.moveToPose(-59, -47, 270, 3000, {.horizontalDrift = 8, .lead = 0.3, .maxSpeed=90}, false);
-    chassis.turnToHeading(125, 3000, {}, false);
-    chassis.moveToPose(-47, -59, 125, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(-62, -61, 45, 3000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3}, false);
-    clamp.set_value(false);
+    // chassis.setPose(-63.5, 0, 90);
+    // //score on alliance stake
+    // hook.move_velocity(600);
+    // pros::delay(250);
+    // hook.brake();
+    // // clamp goal
+    // chassis.moveToPose(-47.5, 9, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(-47.5, -19, 0, 3000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
+    // pros::delay(250);
+    // clamp.set_value(true);
+    // pros::delay(250);
+    // // get rings and go to wall stake
+    // hook.move_velocity(600);
+    // intake.move_velocity(600);
+    // chassis.moveToPose(-23.5, -23.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 1
+    // chassis.moveToPose(0, -59, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 2
+    // lb.move_absolute(LB_MID, 400);
+    // pros::delay(1000);
+    // // score on wall stake
+    // chassis.moveToPose(0, -64, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // hook.brake();
+    // intake.brake();
+    // lb.move_absolute(LB_UP, 400);
+    // chassis.moveToPose(0, -48, 180, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // lb.move_absolute(LB_DOWN, 400);
+    // //grab rest of rings + corner
+    // hook.move_velocity(600);
+    // intake.move_velocity(600);
+    // chassis.turnToHeading(270, 3000, {}, false);
+    // chassis.moveToPose(-59, -47, 270, 3000, {.horizontalDrift = 8, .lead = 0.3, .maxSpeed=90}, false);
+    // chassis.turnToHeading(125, 3000, {}, false);
+    // chassis.moveToPose(-47, -59, 125, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(-62, -61, 45, 3000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3}, false);
+    // clamp.set_value(false);
+    // //grab next goal
+    // chassis.moveToPose(-47.5, 0, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(-47.5, 19, 180, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
+    // pros::delay(250);
+    // clamp.set_value(true);
+    // pros::delay(250);
+    // // get rings and go to wall stake
+    // hook.move_velocity(600);
+    // intake.move_velocity(600);
+    // chassis.moveToPose(-23.5, 23.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 1
+    // chassis.moveToPose(0, 59, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 2
+    // lb.move_absolute(LB_MID, 400);
+    // pros::delay(1000);
+    // // score on wall stake
+    // chassis.moveToPose(0, 64, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // hook.brake();
+    // intake.brake();
+    // lb.move_absolute(LB_UP, 400);
+    // chassis.moveToPose(0, 48, 0, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3,}, false);
+    // lb.move_absolute(LB_DOWN, 400);
+    // //grab rest of rings + corner
+    // hook.move_velocity(600);
+    // intake.move_velocity(600);
+    // chassis.turnToHeading(270, 3000, {}, false);
+    // chassis.moveToPose(-59, 47, 270, 3000, {.horizontalDrift = 8, .lead = 0.3, .maxSpeed=90}, false);
+    // chassis.turnToHeading(125, 3000, {}, false);
+    // chassis.moveToPose(-47, 59, 45, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(-62, 61, 125, 3000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3}, false);
+    // clamp.set_value(false);
+    // //go to far goal with ring in LB
+    // lb.move_absolute(LB_MID, 400);
+    // chassis.moveToPose(23.5, 47.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(47, 4.5, 0, 3000, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
+    // pros::delay(250);
+    // clamp.set_value(true);
+    // pros::delay(250);
+    // //alliance stake
+    // chassis.moveToPose(64, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(55.5, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // hook.brake();
+    // intake.brake();
+    // lb.move_absolute(LB_ALLIANCE_STAKE, 400);
+    // chassis.moveToPose(47, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // lb.move_absolute(LB_DOWN, 400);
+    // hook.move_velocity(600);
+    // intake.move_velocity(600);
+    // //grab rings
+    // chassis.moveToPose(47, -47, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(24, -47, 270, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(24, -24, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(0, 0, 315, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(24, 24, 45, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPoint(24, 47, 3000, {.earlyExitRange=6}, false);
+    // chassis.moveToPose(47, 59, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    // pros::delay(800);
+    // hook.brake();
+    // intake.brake();
+    // //put full goal in corner
+    // chassis.moveToPose(62, 62, 225, 3000, {.forwards = false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // clamp.set_value(false);
+    // //put last goal in corner
+    // chassis.moveToPoint(40, 23, 3000, {.earlyExitRange=4}, false);
+    // chassis.moveToPose(59, -14, 180, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(56.5, -14.5, 170, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // chassis.moveToPose(63.5, -59, 170, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
+    // //hang
+    // lb.move_absolute(LB_UP, 400);
+    // chassis.moveToPose(15, -15, 315, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     
-    //grab next goal
-    chassis.moveToPose(-47.5, 0, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(-47.5, 19, 180, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
-    pros::delay(250);
-    clamp.set_value(true);
-    pros::delay(250);
-    // get rings and go to wall stake
-    hook.move_velocity(600);
-    intake.move_velocity(600);
-    chassis.moveToPose(-23.5, 23.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 1
-    chassis.moveToPose(0, 59, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false); // ring 2
-    lb.move_absolute(LB_MID, 400);
+
+    //SWAP
+    pros::Task auton_color_sort_task(auton_color_sort);
+    chassis.setPose(54, 15, 135);
+    lb.set_zero_position(375);
+    lb.move_absolute(LB_ALLIANCE_STAKE, 600);
     pros::delay(1000);
-    // score on wall stake
-    chassis.moveToPose(0, 64, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    hook.brake();
-    intake.brake();
-    lb.move_absolute(LB_UP, 400);
-    chassis.moveToPose(0, 48, 0, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3,}, false);
-    lb.move_absolute(LB_DOWN, 400);
-    //grab rest of rings + corner
-    hook.move_velocity(600);
-    intake.move_velocity(600);
-    chassis.turnToHeading(270, 3000, {}, false);
-    chassis.moveToPose(-59, 47, 270, 3000, {.horizontalDrift = 8, .lead = 0.3, .maxSpeed=90}, false);
-    chassis.turnToHeading(125, 3000, {}, false);
-    chassis.moveToPose(-47, 59, 45, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(-62, 61, 125, 3000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3}, false);
-    clamp.set_value(false);
-
-    //go to far goal with ring in LB
-    lb.move_absolute(LB_MID, 400);
-    chassis.moveToPose(23.5, 47.5, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(47, 4.5, 0, 3000, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
+    chassis.moveToPoint(49, 20, 1000, {.forwards=false, .earlyExitRange=8}, false);
+    lb.move_absolute(1000, 600);
+    chassis.moveToPose(22, 24.5, 90, 1500, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=60, .minSpeed=15,}, false);
     pros::delay(250);
     clamp.set_value(true);
-    pros::delay(250);
-    //alliance stake
-    chassis.moveToPose(64, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(55.5, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    hook.brake();
-    intake.brake();
-    lb.move_absolute(LB_ALLIANCE_STAKE, 400);
-    chassis.moveToPose(47, 0, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    lb.move_absolute(LB_DOWN, 400);
-    hook.move_velocity(600);
+    pros::delay(500);
+    lb.tare_position();
+    lb.move_absolute(0, 400);
     intake.move_velocity(600);
-    //grab rings
-    chassis.moveToPose(47, -47, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(24, -47, 270, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(24, -24, 0, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(0, 0, 315, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(24, 24, 45, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPoint(24, 47, 3000, {.earlyExitRange=6}, false);
-    chassis.moveToPose(47, 59, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    pros::delay(800);
-    hook.brake();
-    intake.brake();
-    //put full goal in corner
-    chassis.moveToPose(62, 62, 225, 3000, {.forwards = false, .horizontalDrift = 8, .lead = 0.3}, false);
-    clamp.set_value(false);
-    //put last goal in corner
-    chassis.moveToPoint(40, 23, 3000, {.earlyExitRange=4}, false);
-    chassis.moveToPose(59, -14, 180, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(56.5, -14.5, 170, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(63.5, -59, 170, 3000, {.forwards=false, .horizontalDrift = 8, .lead = 0.3}, false);
-    //hang
-    lb.move_absolute(LB_UP, 400);
-    chassis.moveToPose(15, -15, 315, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    hook.move_velocity(600);
+    chassis.moveToPose(4, 34, 0, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
+    chassis.moveToPose(4, 50, 0, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
+    pros::delay(500);
+    chassis.moveToPose(24, 45, 90, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
 }
-
 void opcontrol() {
     // start all tasks
     pros::Task intake_task(intake_control);
