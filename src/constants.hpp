@@ -18,7 +18,6 @@ const int LB_PORT = 7;
 
 const int IMU_PORT = 1;
 
-//TODO: Update ports
 const int HORTIZONTAL_TRACKING_ROTATION_PORT = 15;
 const int VERTICAL_TRACKING_ROTATION_PORT = -4;
 

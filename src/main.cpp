@@ -13,13 +13,13 @@
 
 // COLOR SORT VALUES (200-240 Blue, 5-45 Red)
 
-int RED_RING_COLOR = 25;
-int BLUE_RING_COLOR = 220;
+int RED_RING_COLOR = 14;
+int BLUE_RING_COLOR = 206;
 
-int color_to_sort = BLUE_RING_COLOR;
+int color_to_sort = RED_RING_COLOR;
 
-int LOWER_COLOR_RANGE = color_to_sort-20;
-int UPPER_COLOR_RANGE = color_to_sort+20;
+int LOWER_COLOR_RANGE = color_to_sort-40;
+int UPPER_COLOR_RANGE = color_to_sort+40;
 
 // init motorgroups
 pros::MotorGroup left_motors({LEFT_MOTOR_FRONT, LEFT_MOTOR_TOP, LEFT_MOTOR_BACK});
@@ -41,11 +41,10 @@ pros::Optical optical(OPTICAL_PORT);
 // init controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-//tracking wheels
+// init tracking wheels
 pros::Rotation horizontal_encoder(HORTIZONTAL_TRACKING_ROTATION_PORT);
 pros::Rotation vertical_encoder(VERTICAL_TRACKING_ROTATION_PORT);
 
-//TODO: update offset
 lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_2, 0.425);
 lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_2, -0.0866);
 
@@ -56,7 +55,7 @@ lemlib::Drivetrain drivetrain(&left_motors, // left motor group
                               12.23696614, // track width
                               lemlib::Omniwheel::NEW_325, // wheel diameter
                               450, // drivetrain rpm
-                              2 // horizontal drift is 2 (for now)
+                              2 // horizontal drift is 2 since we have traction wheels
 );
 
 // init PID controllers
@@ -71,9 +70,9 @@ lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
                                               20 // maximum acceleration (slew)
 );
 
-lemlib::ControllerSettings angular_controller(2.76, // proportional gain (kP)
+lemlib::ControllerSettings angular_controller(2.73, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              13.7, // derivative gain (kD)
+                                              14, // derivative gain (kD)
                                               0, // anti windup
                                               1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
@@ -110,18 +109,19 @@ lemlib::Chassis chassis(drivetrain,
                         &steer_curve
 );
 
+// init control bools
 bool clamp_down = false;
 bool doinker_down = false;
 bool color_sort = true;
 
-// init intake control with color sorting
+// intake control with color sorting
 void intake_control() {
     while (true) {
         // if the R1 button is pressed, start the intake and color sort (200-240 Blue, 5-45 Red)
         if ((optical.get_hue() > LOWER_COLOR_RANGE && optical.get_hue() < UPPER_COLOR_RANGE) && color_sort){
             intake.move_velocity(0);
             hook.move_velocity(0);
-            pros::delay(51);
+            pros::delay(50);
         }
         // move intake forward when R1 pressed, move backward when R2 pressed
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) { 
@@ -136,14 +136,15 @@ void intake_control() {
             intake.move_velocity(0);
             hook.move_velocity(0);
         }
-        pros::delay(20);  // Small delay to prevent overload/freezing
+        pros::delay(20);  // delay to prevent overload/freezing
     }
 }
 
-
+// pneumatic control
 void pneumatic_control() {
 	while (true) {
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {  // when L1 pressed, toggle clamp and display position
+        // when L1 pressed, toggle clamp and display position
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 			clamp_down = !clamp_down;
 			clamp.set_value(clamp_down);
             if (clamp_down){
@@ -152,7 +153,8 @@ void pneumatic_control() {
                 controller.print(0, 0, "UP  ");
             }
 		} 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){ // when B pressed, toggle color sort and display
+        // when B pressed, toggle color sort and display
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
             color_sort = !color_sort;
             if (color_sort){
                 controller.print(1, 0, "SORT  ");
@@ -160,7 +162,8 @@ void pneumatic_control() {
                 controller.print(1, 0, "NOSORT");
             }
         }
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) { // when L2 pressed, toggle doinker
+        // when L2 pressed, toggle doinker
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
 			doinker_down = !doinker_down;
 			doinker.set_value(doinker_down);
 		} 
@@ -170,10 +173,10 @@ void pneumatic_control() {
 	}
 }
 
-//control ladybrown
+// control ladybrown
 void lb_control(){
     while (true) {
-        // if left or right pressed move LB to loading, if down pressed move it down, or if up pressed move it up
+        // if left pressed move LB to loading, if down pressed move it down, if up pressed move it up, or if right pressed move it all the way down
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
             lb.move_absolute(LB_MID, 400);
         } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
@@ -204,8 +207,8 @@ void initialize() {
             pros::lcd::print(3, "Color Hue: %f", optical.get_hue()); // hue
             pros::lcd::print(4, "LB Position %f", lb.get_position()); // lb position
 
-            pros::lcd::print(5, "Vertical Sensor: %i", vertical_encoder.get_position());
-            pros::lcd::print(6, "Horizontal Sensor: %i", horizontal_encoder.get_position());
+            pros::lcd::print(5, "Vertical Sensor: %i", vertical_encoder.get_position()); // vertical sensor
+            pros::lcd::print(6, "Horizontal Sensor: %i", horizontal_encoder.get_position()); // horizontal sensor
 
             // delay to save resources
             pros::delay(20);
@@ -214,13 +217,18 @@ void initialize() {
 }
 
 // color sort specifically for autons
+bool stop_after_sorting = false;
 void auton_color_sort() {
     while (true){
         if (optical.get_hue() > LOWER_COLOR_RANGE && optical.get_hue() < UPPER_COLOR_RANGE){
+            if (stop_after_sorting){
+                pros::delay(100);
+            }
             hook.move_velocity(0);
-            pros::delay(51);
-            hook.move_velocity(600);
-            intake.move_velocity(200);
+            pros::delay(50);
+            if (!stop_after_sorting){
+                hook.move_velocity(600);
+            }
         }
         pros::delay(20);
     }
@@ -231,7 +239,7 @@ void autonomous() {
     chassis.setPose(0, 0, 0);
     clamp.set_value(false);
     
-    //SKILLS CODE
+    // SKILLS CODE
     // chassis.setPose(-63.5, 0, 90);
     // //score on alliance stake
     // hook.move_velocity(600);
@@ -339,23 +347,36 @@ void autonomous() {
     //SWAP
     pros::Task auton_color_sort_task(auton_color_sort);
     chassis.setPose(54, 15, 135);
-    lb.set_zero_position(375);
     lb.move_absolute(LB_ALLIANCE_STAKE, 600);
     pros::delay(1000);
     chassis.moveToPoint(49, 20, 1000, {.forwards=false, .earlyExitRange=8}, false);
-    lb.move_absolute(1000, 600);
-    chassis.moveToPose(22, 24.5, 90, 1500, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=60, .minSpeed=15,}, false);
+    lb.move_absolute(-LB_MID, 600);
+    chassis.moveToPose(22, 24.5, 120, 1500, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=60, .minSpeed=15,}, false);
+    pros::delay(250);
+    clamp.set_value(true);
+    pros::delay(200);
+    lb.tare_position();
+    intake.move_velocity(600);
+    hook.move_velocity(600);
+    chassis.turnToHeading(335, 800, {.direction=lemlib::AngularDirection::CCW_COUNTERCLOCKWISE});
+    chassis.moveToPose(4, 37, 335, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
+    chassis.moveToPose(3, 55, 0, 2000, {.horizontalDrift = 8, .lead = 0.3,.maxSpeed=40}, false);
+    pros::delay(300);
+    chassis.moveToPose(24, 48, 90, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
+    pros::delay(300);
+    hook.move_velocity(300);
+    chassis.moveToPose(42, 13, 180, 1500, {.horizontalDrift = 8, .lead = 0.3,.earlyExitRange=4}, false);
+    clamp.set_value(false);
+    stop_after_sorting = true;
+    chassis.moveToPose(42, -15, 180, 1500, {.horizontalDrift = 8, .lead = 0.3, .maxSpeed=33}, false);
+    stop_after_sorting=false;
+    chassis.moveToPose(20, -24.5, 60, 1500, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=60, .minSpeed=15,}, false);
     pros::delay(250);
     clamp.set_value(true);
     pros::delay(500);
-    lb.tare_position();
-    lb.move_absolute(0, 400);
-    intake.move_velocity(600);
     hook.move_velocity(600);
-    chassis.moveToPose(4, 34, 0, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
-    chassis.moveToPose(4, 50, 0, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
-    pros::delay(500);
-    chassis.moveToPose(24, 45, 90, 1500, {.horizontalDrift = 8, .lead = 0.3,}, false);
+    lb.move_absolute(LB_UP-500, 400);
+    chassis.swingToHeading(315, lemlib::DriveSide::LEFT, 800, {}, false);
 }
 void opcontrol() {
     // start all tasks

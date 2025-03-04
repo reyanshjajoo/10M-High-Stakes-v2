@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "TEST",
+    "project_name": "NEW BLUE SWAP",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -298,9 +298,9 @@
       }
     },
     "upload_options": {
-      "description": "10M's High Stakes code for their second bot.",
-      "icon": "pros",
-      "slot": 7
+      "description": "10M's High Stakes Code",
+      "icon": "robot",
+      "slot": 1
     },
     "use_early_access": false
   }
