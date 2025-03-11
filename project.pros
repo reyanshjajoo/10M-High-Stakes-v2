@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "NEW BLUE SWAP",
+    "project_name": "NEW BLUE SWP",
     "target": "v5",
     "templates": {
       "LemLib": {
