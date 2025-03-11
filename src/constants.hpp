@@ -31,6 +31,8 @@ const char DOINKER_PORT = 'B';
 const int LB_DOWN = 0;
 const int LB_MID = -375;
 const int LB_UP = -2000;
-const int LB_ALLIANCE_STAKE = -3000;
-const int LB_TIP = -3500;
+const int LB_ALLIANCE_STAKE = -2300;
+const int LB_TIP = -3000;
+
+const int OPTICAL_PROXIMITY = 100;
 #endif
