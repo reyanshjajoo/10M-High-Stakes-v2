@@ -537,22 +537,22 @@ void autonomous() {
     // chassis.swingToHeading(45, lemlib::DriveSide::RIGHT, 800, {}, false);
 }
 void opcontrol() {
-    // // start all tasks
-    // chassis.setPose(-64, -6, 315);
-    // //score on alliance stake
-    // lb.move_absolute(LB_ALLIANCE_STAKE, 600);
-    // pros::delay(1000);
-    // lb.move_absolute(-LB_MID-15, 600);
-    // pros::delay(300);
-    // chassis.moveToPose(-51, -20, 315, 1000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
+    // ONLY UNCOMMENT FOR SKILLS
+    chassis.setPose(-64, -6, 315);
+    //score on alliance stake
+    lb.move_absolute(LB_ALLIANCE_STAKE, 600);
+    pros::delay(1000);
+    lb.move_absolute(-LB_MID-15, 600);
+    pros::delay(300);
+    chassis.moveToPose(-51, -20, 315, 1000, {.forwards=false,.horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
     // clamp goal
-    // pros::delay(250);
-    // clamp.set_value(true);
-    // pros::delay(250);
+    pros::delay(250);
+    clamp.set_value(true);
+    pros::delay(250);
+    lb.tare_position();
     pros::Task intake_task(intake_control);
     pros::Task pneumatic_task(pneumatic_control);
     pros::Task lb_task(lb_control);
-    // lb.tare_position();
     
     while (true) {
         // get left y and right y positions
