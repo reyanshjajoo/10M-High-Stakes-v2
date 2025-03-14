@@ -336,8 +336,8 @@ void autonomous() {
     pros::delay(250);
 
     //go to corner + pick up ring
-    hook.move_velocy(0);
-    chassis.moveToPose(30, 52.5, 0, 3000, {.minSpeed=72, .earlyExitRang = 4, .horizontalDrift = 8, .lead = 0.3}); //ring in intake
+    hook.move_velocity(0);
+    chassis.moveToPose(30, 52.5, 0, 3000, {.horizontalDrift = 8, .lead = 0.3, .minSpeed=72, .earlyExitRange = 4,}); //ring in intake
     chassis.moveToPose(18,52.5, 270, 3000, {.horizontalDrift = 8, .lead = 0.3}); 
     chassis.moveToPose(38, 60.5, 225, 3000,{.horizontalDrift = 8, .lead = 0.3}); //goal in corner
     pros::delay(250);
@@ -375,7 +375,7 @@ void autonomous() {
     chassis.moveToPose(6, -43.5, 180, 3000, {.horizontalDrift = 8, .lead = 0.3});    // fifth ring
     
     //goal in corner
-    chassis.moveToPose(35, -43.5, 80, 3000, {.minSpeed=72, .earlyExitRang = 4, .horizontalDrift = 8, .lead = 0.3}); //sixth ring
+    chassis.moveToPose(35, -43.5, 80, 3000, {.horizontalDrift = 8, .lead = 0.3, .minSpeed=72, .earlyExitRange = 4}); //sixth ring
     chassis.moveToPose(40, -35.5, 270, 3000, {.horizontalDrift = 8, .lead = 0.3}); 
     chassis.moveToPose(45, -50, 315, 3000,{.horizontalDrift = 8, .lead = 0.3}); //goal in corner
     hook.move_velocity(0);
