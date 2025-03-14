@@ -328,24 +328,24 @@ void autonomous() {
     hook.move_velocity(600);
     intake.move_velocity(600);
     chassis.waitUntilDone();
-    chassis.moveToPose(24, 4.5, 330, 3000, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
+    chassis.moveToPose(30, 4.5, 330, 3000, {.forwards = false, .horizontalDrift = 8, .lead = 0.3, .maxSpeed=65, .minSpeed=15}, false);
     pros::delay(250);
     clamp.set_value(true);
     pros::delay(250);
 
     //alliance stake
-    chassis.moveToPose(36, 10, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(29, 10, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    chassis.moveToPose(39, 10, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    chassis.moveToPose(32, 10, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     hook.brake();
     intake.brake();
     lb.move_absolute(LB_ALLIANCE_STAKE, 400);
-    chassis.moveToPose(26, 12, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    chassis.moveToPose(29, 12, 90, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     lb.move_absolute(LB_DOWN, 400);
     hook.move_velocity(600);
     intake.move_velocity(600);
     //grab rings
-    chassis.moveToPose(27, -34, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
-    chassis.moveToPose(4, -34, 270, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    chassis.moveToPose(27, -38, 180, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
+    chassis.moveToPose(4, -38, 270, 3000, {.horizontalDrift = 8, .lead = 0.3}, false);
     chassis.moveToPose(4, -21, 0, 3000, {.horizontalDrift = 8, .lead = 0.3});
     pros::delay(500);
     hook.move_velocity(0);
