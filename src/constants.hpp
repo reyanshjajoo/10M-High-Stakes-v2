@@ -16,7 +16,7 @@ const int LB_PORT = 7;
 
 // Sensor ports
 
-const int IMU_PORT = 2;
+const int IMU_PORT = 5;
 
 const int HORTIZONTAL_TRACKING_ROTATION_PORT = 15;
 const int VERTICAL_TRACKING_ROTATION_PORT = -4;
@@ -31,7 +31,7 @@ const char DOINKER_PORT = 'B';
 const int LB_DOWN = 0;
 const int LB_MID = -375;
 const int LB_UP = -2000;
-const int LB_ALLIANCE_STAKE = -2500;
+const int LB_ALLIANCE_STAKE = -2800;
 const int LB_TIP = -2500;
 
 const int OPTICAL_PROXIMITY = 100;
